@@ -22,6 +22,19 @@ in
     elasticFileSystems.test-fs = {
       inherit region accessKeyId;
     };
+    elasticFileSystemMountTargets.test-fs-mount-target = { resources, ... }: {
+      inherit region accessKeyId;
+      subnet = resources.vpcSubnets.nixops-subnet-a;
+      securityGroupId = resources.ec2SecurityGroups.efsmt-sg;
+      fileSystem = resources.elasticFileSystems.test-fs;
+    };
+
+    ec2SecurityGroups.efsmt-sg = { resources, ... }: {
+      inherit accessKeyId;
+      inherit region;
+      vpcId = resources.vpc.vpc-nixops;
+      rules = [ ];
+    };
 
     vpc = {
       vpc-nixops = { resources, ... }: {
@@ -111,6 +124,11 @@ in
       fsType = "ext4";
       device = "/dev/xvdx";
       ec2.disk = resources.ebsVolumes.test-volume;
+    };
+    fileSystems."/efs" = {
+      fsType = "nfs";
+      device = "${resources.elasticFileSystemMountTargets.test-fs-mount-target.ipAddress}:/";
+      options = [ "nfsvers=4.1" ];
     };
 
     services.nginx.enable = true;
