@@ -19,6 +19,10 @@ in
       size = 1;
     };
 
+    elasticFileSystems.test-fs = {
+      inherit region accessKeyId;
+    };
+
     vpc = {
       vpc-nixops = { resources, ... }: {
         inherit accessKeyId;
