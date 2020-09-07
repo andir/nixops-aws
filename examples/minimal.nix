@@ -1,7 +1,8 @@
 let
-      accessKeyId = "AKIAJHOVCFWKKSG5ISKA";
-      region = "eu-central-1";
-in {
+  accessKeyId = "AKIAJHOVCFWKKSG5ISKA";
+  region = "eu-central-1";
+in
+{
   network.description = "NGINX Webserver deployment";
 
 
@@ -9,6 +10,13 @@ in {
     ec2KeyPairs.my-key-pair = {
       inherit region;
       inherit accessKeyId;
+    };
+
+    ebsVolumes.test-volume = {
+      tags.Name = "test volume";
+      inherit region accessKeyId;
+      zone = "${region}a";
+      size = 1;
     };
 
     vpc = {
@@ -66,27 +74,13 @@ in {
     };
 
     vpcSubnets = {
-      nixops-subnet-a = {resources, ... }:{
+      nixops-subnet-a = { resources, ... }: {
         inherit accessKeyId;
         inherit region;
         zone = "${region}a";
         cidrBlock = "10.0.0.0/24";
         vpcId = resources.vpc.vpc-nixops;
       };
-      # nixops-subnet-b = {resources, ... }:{
-      #   inherit accessKeyId;
-      #   inherit region;
-      #   zone = "${region}b";
-      #   cidrBlock = "10.0.1.0/24";
-      #   vpcId = resources.vpc.vpc-nixops;
-      # };
-      # nixops-subnet-c = {resources, ... }:{
-      #   inherit accessKeyId;
-      #   inherit region;
-      #   zone = "${region}c";
-      #   cidrBlock = "10.0.2.0/24";
-      #   vpcId = resources.vpc.vpc-nixops;
-      # };
     };
   };
 
@@ -103,9 +97,16 @@ in {
 
         subnetId = resources.vpcSubnets.nixops-subnet-a;
 
-        securityGroups = [];
+        securityGroups = [ ];
         securityGroupIds = [ resources.ec2SecurityGroups.minimal-sg.name ];
       };
+    };
+
+    fileSystems."/ebs-volume" = {
+      autoFormat = true;
+      fsType = "ext4";
+      device = "/dev/xvdx";
+      ec2.disk = resources.ebsVolumes.test-volume;
     };
 
     services.nginx.enable = true;
