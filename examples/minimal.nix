@@ -100,6 +100,14 @@ in
       };
     };
   };
+  resources.snsTopics = {
+    test-topic = {
+      name = "test-topic";
+      displayName = "NixOps SNS topic";
+      inherit region accessKeyId;
+      subscriptions = [];
+    };
+  };
 
   webserver = { resources, ... }: {
     deployment = {
