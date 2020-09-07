@@ -107,7 +107,26 @@ in
       inherit region accessKeyId;
       subscriptions = [];
     };
+
+    # I was unable to trigger any kind of NixOPS action with the cloudwatch resources. It was just doing nothing.
+    #  .cloudWatchLogGroups = {
+    #    test-log-group = {
+    #      name = "log-group";
+    #      inherit region accessKeyId;
+    #      retentionInDays = 1;
+    #    };
+    #  };
+    #
+    #  .cloudWatchLogStreams = {
+    #    test-log-stream = {resources, ... }: {
+    #      name = "log-stream";
+    #      inherit region accessKeyId;
+    #      logGroupName = resources.cloudWatchLogGroup.name;
+    #    };
+    #  };
+
   };
+
 
   webserver = { resources, ... }: {
     deployment = {
