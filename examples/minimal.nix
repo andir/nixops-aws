@@ -99,13 +99,24 @@ in
         vpcId = resources.vpc.vpc-nixops;
       };
     };
-  };
-  resources.snsTopics = {
-    test-topic = {
-      name = "test-topic";
-      displayName = "NixOps SNS topic";
-      inherit region accessKeyId;
-      subscriptions = [];
+
+    snsTopics = {
+      test-topic = {
+        name = "test-topic";
+        displayName = "NixOps SNS topic";
+        inherit region accessKeyId;
+        subscriptions = [ ];
+      };
+    };
+
+    # only works if the region is being passed to `.client("s3",
+    # region_name=…)` as otherwise the endpoint for eu-west-1 can't be found.
+    # I never got the "US" aka "us-east-1" to work.. this requires more investigation.
+    s3Buckets.nixops-test-bucket = { resources, ... }: {
+      inherit accessKeyId region;
+      versioning = "Suspended";
+      persistOnDestroy = false;
+      website.enable = true;
     };
 
     # I was unable to trigger any kind of NixOPS action with the cloudwatch resources. It was just doing nothing.
